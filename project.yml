@@ -1,0 +1,89 @@
+name: virtual-hid-device-service-client
+
+targets:
+  virtual-hid-device-service-client:
+    settings:
+      PRODUCT_BUNDLE_IDENTIFIER: org.pqrs.virtual-hid-device-service-client
+      OTHER_SWIFT_FLAGS: '-warnings-as-errors'
+      DEAD_CODE_STRIPPING: 'YES'
+      SWIFT_VERSION: '6.0'
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - $(KARABINER_ROOT)/vendor/vendor/include
+        - $(KARABINER_ROOT)/include
+    dependencies:
+      - sdk: AppKit.framework
+      - sdk: ApplicationServices.framework
+    type: tool
+    platform: macOS
+    deploymentTarget: 13.0
+    sources:
+      - path: src
+        compilerFlags:
+          - -Wall
+          - -Werror
+          - '-std=gnu++2a'
+  ClipboardHID:
+    type: application
+    platform: macOS
+    deploymentTarget: 13.0
+    settings:
+      PRODUCT_NAME: KeyBridge
+      PRODUCT_BUNDLE_IDENTIFIER: app.keybridge.mac
+      CLANG_ENABLE_OBJC_ARC: YES
+      CODE_SIGN_IDENTITY: '-'
+      CODE_SIGN_STYLE: Manual
+      ENABLE_HARDENED_RUNTIME: YES
+      ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - $(KARABINER_ROOT)/vendor/vendor/include
+        - $(KARABINER_ROOT)/include
+    info:
+      path: menubar/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleDisplayName: KeyBridge
+        CFBundleShortVersionString: '0.7.4'
+        CFBundleVersion: '13'
+        NSHighResolutionCapable: true
+    sources:
+      - path: go/keybridge/native/AppStub.m
+        compilerFlags: [-Wall, -Werror]
+      - path: menubar/Protocol.hpp
+      - path: menubar/install-helper.sh
+        buildPhase: resources
+      - path: menubar/Assets.xcassets
+    dependencies:
+      - sdk: AppKit.framework
+      - sdk: ApplicationServices.framework
+      - sdk: Security.framework
+      - sdk: ServiceManagement.framework
+      - target: ClipboardHIDHelper
+        embed: false
+    postBuildScripts:
+      - name: Embed HID helper
+        script: |
+          mkdir -p "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Library/LaunchServices"
+          cp "$BUILT_PRODUCTS_DIR/local.clipboardhid.helper" "$TARGET_BUILD_DIR/$CONTENTS_FOLDER_PATH/Library/LaunchServices/local.clipboardhid.helper"
+        basedOnDependencyAnalysis: false
+  ClipboardHIDHelper:
+    type: tool
+    platform: macOS
+    deploymentTarget: 13.0
+    settings:
+      PRODUCT_NAME: local.clipboardhid.helper
+      PRODUCT_BUNDLE_IDENTIFIER: local.clipboardhid.helper
+      CLANG_ENABLE_OBJC_ARC: YES
+      CODE_SIGN_IDENTITY: '-'
+      CODE_SIGN_STYLE: Manual
+      ENABLE_HARDENED_RUNTIME: YES
+      SYSTEM_HEADER_SEARCH_PATHS:
+        - $(KARABINER_ROOT)/vendor/vendor/include
+        - $(KARABINER_ROOT)/include
+    sources:
+      - path: menubar/Helper.mm
+        compilerFlags: [-Wall, -Werror, '-std=gnu++2a']
+      - path: menubar/Daemon.hpp
+    dependencies:
+      - sdk: AppKit.framework
+      - sdk: ApplicationServices.framework
+      - sdk: Security.framework

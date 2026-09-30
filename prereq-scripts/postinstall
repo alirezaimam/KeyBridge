@@ -1,0 +1,10 @@
+#!/bin/bash
+set -euo pipefail
+required=6.2.0
+installed=$(/usr/sbin/pkgutil --pkg-info org.pqrs.Karabiner-DriverKit-VirtualHIDDevice 2>/dev/null | /usr/bin/awk -F': ' '/^version:/ {print $2}')
+version_at_least() {
+  /usr/bin/awk -v have="$1" -v need="$2" 'BEGIN { split(have,a,"."); split(need,b,"."); for (i=1;i<=3;i++) { x=(a[i]==""?0:a[i])+0; y=(b[i]==""?0:b[i])+0; if(x>y)exit 0; if(x<y)exit 1 } exit 0 }'
+}
+if [ -n "$installed" ] && version_at_least "$installed" "$required"; then exit 0; fi
+script_dir=$(cd "$(dirname "$0")" && pwd)
+/usr/sbin/installer -pkg "$script_dir/Karabiner-DriverKit-VirtualHIDDevice-6.2.0.pkg" -target "${3:-/}"

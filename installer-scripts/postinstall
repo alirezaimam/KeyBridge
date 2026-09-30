@@ -1,0 +1,33 @@
+#!/bin/bash
+set -euo pipefail
+
+# Installer arguments: package path, install location, target volume.
+app="${3%/}/Applications/KeyBridge.app"
+script="$app/Contents/Resources/install-helper.sh"
+karabiner_daemon="${3%/}/Library/Application Support/org.pqrs/Karabiner-DriverKit-VirtualHIDDevice/Applications/Karabiner-VirtualHIDDevice-Daemon.app/Contents/MacOS/Karabiner-VirtualHIDDevice-Daemon"
+karabiner_label="local.clipboardhid.virtual-hid-service"
+karabiner_plist="${3%/}/Library/LaunchDaemons/$karabiner_label.plist"
+
+[ -d "$app" ] && [ -f "$script" ] || exit 1
+
+# The package runs as root.  Reuse the same guarded installer used by the app:
+# it verifies the bundle and replaces only KeyBridge's fixed helper paths.
+/bin/bash "$script" install "$app"
+[ -x "$karabiner_daemon" ] || exit 1
+/bin/launchctl bootout "system/$karabiner_label" 2>/dev/null || true
+cat > "$karabiner_plist" <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict>
+<key>Label</key><string>$karabiner_label</string>
+<key>ProgramArguments</key><array><string>$karabiner_daemon</string></array>
+<key>RunAtLoad</key><true/>
+<key>KeepAlive</key><true/>
+<key>ProcessType</key><string>Background</string>
+<key>ThrottleInterval</key><integer>5</integer>
+</dict></plist>
+PLIST
+/usr/sbin/chown root:wheel "$karabiner_plist"
+/bin/chmod 644 "$karabiner_plist"
+/usr/bin/plutil -lint "$karabiner_plist" >/dev/null
+/bin/launchctl bootstrap system "$karabiner_plist"

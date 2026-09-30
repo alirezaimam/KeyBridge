@@ -1,0 +1,8 @@
+.DS_Store
+build/
+*.xcodeproj/
+go/keybridge/.cache/
+go/keybridge/dist/
+go/keybridge/keybridge
+*.bak
+*.pre-*.bak

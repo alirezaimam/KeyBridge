@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+  <title>Install KeyBridge</title>
+  <options customize="never" require-scripts="true"/>
+  <choices-outline><line choice="prerequisites"/><line choice="keybridge"/></choices-outline>
+  <choice id="prerequisites" visible="false"><pkg-ref id="app.keybridge.prerequisites"/></choice>
+  <choice id="keybridge" visible="false"><pkg-ref id="app.keybridge.mac"/></choice>
+  <pkg-ref id="app.keybridge.prerequisites" version="0.7.4">KeyBridge-prerequisites.pkg</pkg-ref>
+  <pkg-ref id="app.keybridge.mac" version="0.7.4">KeyBridge-app.pkg</pkg-ref>
+</installer-gui-script>

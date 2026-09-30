@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+# DriverKit support starts with macOS 13. Reject earlier systems before any files change.
+major=$(/usr/bin/sw_vers -productVersion | /usr/bin/awk -F. '{print $1}')
+case "$major" in ''|*[!0-9]*) exit 1 ;; esac
+[ "$major" -ge 13 ] || exit 1
+
+# Stop either supported predecessor before its files are updated.
+/usr/bin/killall -q "KeyBridge" 2>/dev/null || true
+/usr/bin/killall -q "Clipboard HID" 2>/dev/null || true
+
+# The legacy bundle used a different name and bundle identifier. Remove only
+# that fixed, verified predecessor so it cannot continue running beside KeyBridge.
+legacy="${3%/}/Applications/Clipboard HID.app"
+if [ -d "$legacy" ] && [ "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$legacy/Contents/Info.plist" 2>/dev/null || true)" = "local.clipboardhid.app" ]; then
+  /bin/rm -rf "$legacy"
+fi
