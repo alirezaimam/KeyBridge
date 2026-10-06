@@ -1,0 +1,55 @@
+name: Bug report
+description: Report a reproducible KeyBridge problem
+title: "bug: "
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include clipboard contents, passwords, access tokens, or other sensitive data.
+  - type: input
+    id: version
+    attributes:
+      label: KeyBridge version
+      placeholder: "0.8.6"
+    validations:
+      required: true
+  - type: input
+    id: macos
+    attributes:
+      label: macOS version and Mac model
+      placeholder: "macOS 15.0, Apple silicon"
+    validations:
+      required: true
+  - type: dropdown
+    id: surface
+    attributes:
+      label: Where does the issue occur?
+      options:
+        - Installation or update
+        - Accessibility or shortcut
+        - Virtual keyboard connection
+        - Typing in a remote console
+        - Settings or menu bar
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Use a harmless sample such as `Hello-VMware_123!@#`; never paste real clipboard text.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true

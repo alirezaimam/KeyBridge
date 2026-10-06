@@ -1,0 +1,26 @@
+name: Go tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Go unit tests
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: go/keybridge
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.27.1"
+      - name: Run unit tests
+        run: go test -race ./internal/control
